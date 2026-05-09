@@ -283,9 +283,7 @@
 
     <div class="entry-form">
       <div class="ftitle">Log a workout</div>
-      <div class="fsub">Fill in what you did. All fields are optional — enter only what applies.<br>
-        <span id="sync-status" style="color:var(--blair-cool-grey)">⚪ Not connected to Google Sheets (session-only mode)</span>
-      </div>
+      <div class="fsub">Fill in what you did today. Submissions go directly to the Google Sheet.</div>
       <div class="form-grid">
         <div class="ffield"><label>Date</label><input type="date" id="f-date" /></div>
         <div class="ffield"><label>Athlete</label>
@@ -413,34 +411,8 @@ function fmt(val) {
   return r.toLocaleString();
 }
 
-// ── GOOGLE SHEETS LIVE LOAD ──
-async function tryLoadFromSheet() {
-  if (!APPS_SCRIPT_URL) return;
-  try {
-    document.getElementById('sync-status').innerHTML = '🔄 Loading from Google Sheets…';
-    const res = await fetch(APPS_SCRIPT_URL);
-    const months = await res.json();
-    // Merge live data
-    NAMES.forEach(n => {
-      MONTHS.forEach(mo => {
-        if (months[mo] && months[mo][n]) {
-          Object.keys(months[mo][n]).forEach(metric => {
-            const v = parseFloat(months[mo][n][metric]);
-            if (!isNaN(v)) DATA[n][mo][metric] = v;
-          });
-        }
-      });
-    });
-    computeYTD();
-    DATA.tim.ytd.ski = Math.max(DATA.tim.ytd.ski, 76.45);
-    document.getElementById('sync-status').innerHTML = '🟢 Live — connected to Google Sheets';
-    document.getElementById('sync-notice').innerHTML =
-      '<strong>🟢 Google Sheets connected.</strong> Stats are loading live from your sheet. Workout submissions will write directly back.';
-    renderOverview();
-  } catch(e) {
-    document.getElementById('sync-status').innerHTML = '🔴 Could not reach Google Sheets — showing cached data';
-  }
-}
+// Live load removed — data is baked in from spreadsheet
+// Submissions still write to Google Sheet via doPost
 
 // ── SUBMIT TO GOOGLE SHEETS ──
 async function submitToSheet(entry) {
@@ -726,7 +698,6 @@ function renderRecentEntries() {
 // ── INIT ──
 document.getElementById('f-date').value = new Date().toISOString().slice(0,10);
 renderOverview();
-if (APPS_SCRIPT_URL) tryLoadFromSheet();
 </script>
 </body>
 </html>
