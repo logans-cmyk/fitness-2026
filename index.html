@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Fitness Competition 2026</title>
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,700;1,400&family=Nunito+Sans:wght@400;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --blair-blue: #004b8d; --blair-dark: #093266;
+      --blair-cool-grey: #72808a; --blair-orange: #c6671d;
+      --blair-green: #74a333; --blair-teal: #00b2ba;
+      --blair-sky: #0077a0; --blair-red: #da1a32;
+      --blair-yellow: #dd971a; --blair-eggplant: #770055;
+      --blair-bright-orange: #f15d22;
+      --blair-web1: #e9e7e5; --blair-web2: #f1f3f4;
+      --font-display: 'EB Garamond', Georgia, serif;
+      --font-body: 'Nunito Sans', 'Avenir Next', Avenir, sans-serif;
+    }
+    html, body { min-height:100vh; background:#f0f2f5; font-family:var(--font-body); color:var(--blair-dark); }
+    .page-wrap { max-width:940px; margin:0 auto; padding:2rem 1.5rem 4rem; }
+
+    /* HEADER */
+    .brand-header { background:white; border-radius:12px; margin-bottom:1.5rem; border:1px solid #dde3ea; overflow:hidden; box-shadow:0 2px 12px rgba(0,0,0,.07); }
+    .hstripe { display:flex; height:7px; }
+    .hstripe span { flex:1; }
+    .header-body { padding:22px 24px 18px; display:flex; align-items:center; gap:20px; }
+    .icon-stack { display:flex; flex-direction:column; gap:6px; flex-shrink:0; }
+    .idot { width:11px; height:11px; border-radius:50%; }
+    .htext { flex:1; }
+    .htext h1 { font-family:var(--font-display); font-size:30px; font-weight:700; color:var(--blair-dark); line-height:1.1; }
+    .htext p { font-size:12px; color:var(--blair-cool-grey); margin-top:5px; font-weight:600; letter-spacing:.08em; text-transform:uppercase; }
+    .hyear { font-family:var(--font-display); font-size:14px; font-weight:700; color:white; background:var(--blair-blue); padding:6px 16px; border-radius:20px; flex-shrink:0; }
+    .hbottom { border-top:1px solid #eef0f2; padding:10px 24px; display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+    .chip { font-size:12px; font-weight:700; padding:4px 12px; border-radius:14px; color:white; }
+
+    /* NOTICE */
+    .notice { background:#fff8e6; border:1px solid #f0d070; border-left:4px solid var(--blair-yellow); border-radius:8px; padding:12px 16px; font-size:13px; color:#5a4200; margin-bottom:1.5rem; line-height:1.6; }
+    .notice a { color:var(--blair-orange); font-weight:700; }
+
+    /* TABS */
+    .tabs { display:flex; gap:2px; margin-bottom:1.5rem; border-bottom:2px solid var(--blair-web1); overflow-x:auto; }
+    .tab { padding:10px 18px; font-size:13px; font-family:var(--font-body); font-weight:600; color:var(--blair-cool-grey); border:none; background:none; cursor:pointer; border-bottom:3px solid transparent; margin-bottom:-2px; white-space:nowrap; transition:color .15s; }
+    .tab.active { color:var(--blair-blue); border-bottom:3px solid var(--blair-blue); }
+    .tab:hover:not(.active) { color:var(--blair-dark); }
+
+    /* METRIC CARDS */
+    .metric-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(130px,1fr)); gap:12px; margin-bottom:1.75rem; }
+    .metric-card { background:var(--blair-web2); border-radius:10px; padding:14px 16px; border-left:4px solid var(--blair-blue); box-shadow:0 1px 4px rgba(0,0,0,.05); }
+    .mlabel { font-size:10px; color:var(--blair-cool-grey); text-transform:uppercase; letter-spacing:.1em; font-weight:700; }
+    .mval { font-family:var(--font-display); font-size:28px; color:var(--blair-dark); margin-top:3px; font-weight:700; line-height:1; }
+    .msub { font-size:11px; color:var(--blair-cool-grey); margin-top:4px; }
+
+    .section-label { font-size:11px; color:var(--blair-orange); font-weight:700; text-transform:uppercase; letter-spacing:.12em; margin-bottom:10px; }
+    .chart-wrap { position:relative; width:100%; height:280px; margin-bottom:1.75rem; }
+    .filters { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:1rem; align-items:center; }
+    .flabel { font-size:12px; color:var(--blair-cool-grey); font-weight:700; }
+    select { font-size:13px; font-family:var(--font-body); padding:6px 12px; border-radius:7px; border:1px solid #c0c8d0; background:white; color:var(--blair-dark); cursor:pointer; }
+
+    /* LEADERBOARD */
+    .leaderboard { border:1px solid #d0d8e0; border-radius:10px; overflow:hidden; margin-bottom:1.75rem; box-shadow:0 1px 6px rgba(0,0,0,.05); }
+    .lb-head { background:var(--blair-blue); font-size:10px; font-weight:700; color:rgba(255,255,255,.85); letter-spacing:.1em; text-transform:uppercase; padding:9px 16px; }
+    .lb-row { display:flex; align-items:center; padding:11px 16px; border-top:1px solid var(--blair-web1); font-size:13px; gap:10px; transition:background .1s; }
+    .lb-row:hover { background:#f7f9fb; }
+    .lb-row:nth-child(even) { background:var(--blair-web2); }
+    .lb-row:nth-child(even):hover { background:#eef2f6; }
+    .lb-medal { width:28px; text-align:center; font-size:16px; flex-shrink:0; }
+    .avatar { width:30px; height:30px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; flex-shrink:0; }
+    .lb-name { font-weight:600; color:var(--blair-dark); min-width:60px; }
+
+    /* ALL-STATS leaderboard grid */
+    .stats-table { width:100%; border-collapse:collapse; font-size:12px; }
+    .stats-table th { background:var(--blair-blue); color:rgba(255,255,255,.9); padding:8px 10px; text-align:right; font-size:10px; font-weight:700; letter-spacing:.07em; text-transform:uppercase; white-space:nowrap; }
+    .stats-table th:first-child { text-align:left; }
+    .stats-table td { padding:10px 10px; border-top:1px solid var(--blair-web1); text-align:right; vertical-align:middle; }
+    .stats-table td:first-child { text-align:left; font-weight:600; }
+    .stats-table tr:nth-child(even) td { background:var(--blair-web2); }
+    .stats-table tr:hover td { background:#f0f5fb; }
+    .stat-num { font-family:var(--font-display); font-size:14px; font-weight:700; }
+    .stat-zero { color:#c8cdd2; }
+    .rank-badge { display:inline-block; width:22px; height:22px; border-radius:50%; font-size:10px; font-weight:700; text-align:center; line-height:22px; margin-right:4px; }
+
+    /* ATHLETE CARDS */
+    .athlete-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:14px; margin-bottom:1.75rem; }
+    .athlete-card { background:white; border:1px solid #d0d8e0; border-radius:10px; overflow:hidden; box-shadow:0 1px 5px rgba(0,0,0,.05); }
+    .acard-head { padding:14px 16px; display:flex; align-items:center; gap:12px; border-bottom:3px solid; }
+    .acard-av { width:40px; height:40px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-family:var(--font-display); font-size:18px; font-weight:700; color:white; flex-shrink:0; }
+    .acard-name { font-family:var(--font-display); font-size:20px; font-weight:700; }
+    .acard-sub { font-size:11px; color:var(--blair-cool-grey); font-weight:600; }
+    .acard-stats { padding:4px 16px 12px; }
+    .srow { display:flex; justify-content:space-between; align-items:center; padding:6px 0; border-bottom:1px solid var(--blair-web1); }
+    .srow:last-child { border-bottom:none; }
+    .sname { color:var(--blair-cool-grey); font-weight:700; text-transform:uppercase; letter-spacing:.07em; font-size:10px; }
+    .sval { font-family:var(--font-display); font-size:15px; font-weight:700; display:flex; align-items:center; gap:6px; }
+    .sbar-wrap { width:55px; height:4px; background:var(--blair-web1); border-radius:2px; overflow:hidden; }
+    .sbar-fill { height:100%; border-radius:2px; display:block; }
+
+    /* GOALS */
+    .goal-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:12px; margin-bottom:1.25rem; }
+    .goal-card { background:white; border:1px solid #d0d8e0; border-top:4px solid var(--blair-blue); border-radius:10px; padding:14px 16px; box-shadow:0 1px 4px rgba(0,0,0,.05); }
+    .gtitle { font-size:11px; color:var(--blair-cool-grey); font-weight:700; text-transform:uppercase; letter-spacing:.08em; margin-bottom:6px; }
+    .gval { font-family:var(--font-display); font-size:24px; font-weight:700; color:var(--blair-dark); }
+    .gbar-wrap { height:5px; background:var(--blair-web1); border-radius:3px; margin-top:10px; overflow:hidden; }
+    .gbar { height:100%; border-radius:3px; background:var(--blair-blue); }
+    .gpct { font-size:12px; color:var(--blair-orange); font-weight:700; margin-top:5px; }
+
+    /* LOG */
+    .entry-form { background:white; border:1px solid #d0d8e0; border-radius:10px; padding:1.5rem; margin-bottom:1.25rem; box-shadow:0 1px 6px rgba(0,0,0,.05); }
+    .ftitle { font-family:var(--font-display); font-size:20px; color:var(--blair-dark); font-weight:700; margin-bottom:4px; }
+    .fsub { font-size:13px; color:var(--blair-cool-grey); line-height:1.5; }
+    .form-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(180px,1fr)); gap:14px; margin-top:1.25rem; }
+    .ffield { display:flex; flex-direction:column; gap:5px; }
+    .ffield label { font-size:11px; color:var(--blair-cool-grey); font-weight:700; text-transform:uppercase; letter-spacing:.07em; }
+    .ffield input, .ffield select { font-size:13px; padding:8px 10px; border-radius:7px; border:1px solid #c0c8d0; background:white; color:var(--blair-dark); font-family:var(--font-body); width:100%; transition:border-color .15s,box-shadow .15s; }
+    .ffield input:focus, .ffield select:focus { outline:none; border-color:var(--blair-blue); box-shadow:0 0 0 3px rgba(0,75,141,.12); }
+    .form-actions { display:flex; gap:10px; margin-top:1.25rem; }
+    .btn-p { padding:10px 24px; font-size:13px; border-radius:7px; border:none; background:var(--blair-blue); color:white; cursor:pointer; font-weight:700; font-family:var(--font-body); transition:background .15s; }
+    .btn-p:hover { background:var(--blair-dark); }
+    .btn-s { padding:10px 24px; font-size:13px; border-radius:7px; border:1px solid #c0c8d0; background:white; color:var(--blair-dark); cursor:pointer; font-family:var(--font-body); }
+    .btn-s:hover { background:var(--blair-web2); }
+    .toast { background:#e8f5e0; border:1px solid var(--blair-green); color:#3a5a10; border-radius:8px; padding:12px 16px; font-size:13px; margin-bottom:1.25rem; display:none; font-weight:600; }
+
+    .legend { display:flex; flex-wrap:wrap; gap:14px; margin-bottom:12px; font-size:12px; color:var(--blair-cool-grey); font-weight:600; }
+    .legend-item { display:flex; align-items:center; gap:6px; }
+    .ldot { width:11px; height:11px; border-radius:3px; flex-shrink:0; }
+
+    .page-footer { text-align:center; margin-top:3rem; font-size:12px; color:#b0b8c0; }
+
+    @media(max-width:600px){
+      .page-wrap{padding:1rem 1rem 3rem;}
+      .hyear{display:none;}
+      .stats-table th:nth-child(n+4),.stats-table td:nth-child(n+4){display:none;}
+    }
+  </style>
+</head>
+<body>
+<div class="page-wrap">
+
+  <!-- HEADER -->
+  <div class="brand-header">
+    <div class="hstripe">
+      <span style="background:#004b8d"></span><span style="background:#0077a0"></span>
+      <span style="background:#00b2ba"></span><span style="background:#74a333"></span>
+      <span style="background:#dd971a"></span><span style="background:#f15d22"></span>
+      <span style="background:#da1a32"></span>
+    </div>
+    <div class="header-body">
+      <div class="icon-stack">
+        <div class="idot" style="background:#004b8d"></div>
+        <div class="idot" style="background:#00b2ba"></div>
+        <div class="idot" style="background:#f15d22"></div>
+        <div class="idot" style="background:#74a333"></div>
+        <div class="idot" style="background:#dd971a"></div>
+      </div>
+      <div class="htext">
+        <h1>Fitness Competition</h1>
+        <p>Stay F*cking Positive &nbsp;·&nbsp; 2026</p>
+      </div>
+      <div class="hyear">2026</div>
+    </div>
+    <div class="hbottom">
+      <span class="chip" style="background:#004b8d">Peter</span>
+      <span class="chip" style="background:#74a333">Ryan</span>
+      <span class="chip" style="background:#f15d22">Jon</span>
+      <span class="chip" style="background:#00b2ba">Tim</span>
+      <span class="chip" style="background:#770055">Jed</span>
+    </div>
+    <div class="hstripe" style="flex-direction:row-reverse">
+      <span style="background:#004b8d"></span><span style="background:#0077a0"></span>
+      <span style="background:#00b2ba"></span><span style="background:#74a333"></span>
+      <span style="background:#dd971a"></span><span style="background:#f15d22"></span>
+      <span style="background:#da1a32"></span>
+    </div>
+  </div>
+
+  <!-- SYNC NOTICE -->
+  <div class="notice" id="sync-notice">
+    <strong>🔗 Google Sheets sync:</strong> To connect this app to your Google Sheet, deploy the included
+    <strong>Google Apps Script</strong> as a web app and set <code>APPS_SCRIPT_URL</code> at the top of this file.
+    Once connected, workout submissions will write directly to your sheet and all stats will load live.
+    See the <strong>Log workout</strong> tab for setup instructions.
+  </div>
+
+  <!-- TABS -->
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('overview')">Overview</button>
+    <button class="tab" onclick="switchTab('athletes')">Athletes</button>
+    <button class="tab" onclick="switchTab('leaderboard')">Leaderboard</button>
+    <button class="tab" onclick="switchTab('trends')">Monthly trends</button>
+    <button class="tab" onclick="switchTab('goals')">Goals</button>
+    <button class="tab" onclick="switchTab('log')">Log workout</button>
+  </div>
+
+  <div id="tab-overview">
+    <div class="metric-grid" id="overview-metrics"></div>
+    <p class="section-label">Push-ups by athlete — year to date</p>
+    <div class="legend" id="pushup-legend"></div>
+    <div class="chart-wrap"><canvas id="pushupChart"></canvas></div>
+    <p class="section-label">All metrics combined — year to date</p>
+    <div class="chart-wrap" style="height:260px"><canvas id="activityChart"></canvas></div>
+  </div>
+
+  <div id="tab-athletes" style="display:none">
+    <p class="section-label">Individual stats — year to date</p>
+    <div class="athlete-grid" id="athlete-cards"></div>
+  </div>
+
+  <div id="tab-leaderboard" style="display:none">
+    <p class="section-label">All stats — ranked by push-ups, showing every metric side by side</p>
+    <div class="filters">
+      <span class="flabel">Sort by:</span>
+      <select id="lb-sort" onchange="renderLeaderboard()">
+        <option value="pushups">Push-ups</option>
+        <option value="pullups">Pull-ups</option>
+        <option value="squats">Squats/Lunges</option>
+        <option value="swim">Swim</option>
+        <option value="bench">Bench (lbs)</option>
+        <option value="bike">Bike (mi)</option>
+        <option value="run">Run (mi)</option>
+        <option value="row">Row (m)</option>
+        <option value="ski">Nordic Ski</option>
+      </select>
+      <span class="flabel" style="margin-left:8px">Period:</span>
+      <select id="lb-period" onchange="renderLeaderboard()">
+        <option value="ytd">Year to date</option>
+        <option value="jan">January</option>
+        <option value="feb">February</option>
+        <option value="mar">March</option>
+        <option value="apr">April</option>
+        <option value="may">May</option>
+      </select>
+    </div>
+    <div class="leaderboard" id="lb-table" style="overflow-x:auto"></div>
+  </div>
+
+  <div id="tab-trends" style="display:none">
+    <div class="filters">
+      <span class="flabel">Athlete:</span>
+      <select id="trend-athlete" onchange="renderTrends()">
+        <option value="all">All athletes</option>
+        <option value="peter">Peter</option>
+        <option value="ryan">Ryan</option>
+        <option value="jon">Jon</option>
+        <option value="tim">Tim</option>
+        <option value="jed">Jed</option>
+      </select>
+      <span class="flabel" style="margin-left:8px">Exercise:</span>
+      <select id="trend-ex" onchange="renderTrends()">
+        <option value="pushups">Push-ups</option>
+        <option value="pullups">Pull-ups</option>
+        <option value="squats">Squats/Lunges</option>
+        <option value="run">Running (mi)</option>
+        <option value="bike">Biking (mi)</option>
+        <option value="swim">Swimming</option>
+        <option value="bench">Bench (lbs)</option>
+      </select>
+    </div>
+    <div class="legend" id="trend-legend"></div>
+    <div class="chart-wrap" style="height:320px"><canvas id="trendChart"></canvas></div>
+  </div>
+
+  <div id="tab-goals" style="display:none">
+    <p class="section-label">Peter's 2026 annual goals</p>
+    <div class="goal-grid" id="goals-grid"></div>
+    <p class="section-label" style="margin-top:1.25rem">Year-to-date comparison — select metric</p>
+    <div class="filters">
+      <span class="flabel">Metric:</span>
+      <select id="ytd-metric" onchange="renderYTDTable()">
+        <option value="pushups">Push-ups</option>
+        <option value="pullups">Pull-ups</option>
+        <option value="squats">Squats/Lunges</option>
+        <option value="run">Run (mi)</option>
+        <option value="bike">Bike (mi)</option>
+        <option value="swim">Swim</option>
+        <option value="bench">Bench (lbs)</option>
+        <option value="row">Row (m)</option>
+        <option value="ski">Nordic Ski</option>
+      </select>
+    </div>
+    <div class="leaderboard" id="ytd-table"></div>
+  </div>
+
+  <div id="tab-log" style="display:none">
+    <div id="toast" class="toast"></div>
+
+    <!-- APPS SCRIPT SETUP INSTRUCTIONS -->
+    <div class="notice" style="margin-bottom:1.25rem">
+      <strong>🛠 One-time setup to sync with Google Sheets:</strong><br><br>
+      1. Open your Google Sheet → <strong>Extensions → Apps Script</strong><br>
+      2. Paste the script below into the editor and click <strong>Save</strong><br>
+      3. Click <strong>Deploy → New deployment → Web app</strong><br>
+      4. Set <em>Execute as</em>: <strong>Me</strong> &nbsp;|&nbsp; <em>Who has access</em>: <strong>Anyone</strong><br>
+      5. Copy the Web App URL and paste it into the <code>APPS_SCRIPT_URL</code> variable at the top of this HTML file<br><br>
+      <strong>Apps Script to paste:</strong>
+      <pre style="background:#f5f5f5;border:1px solid #ddd;border-radius:6px;padding:12px;margin-top:8px;font-size:11px;overflow-x:auto;white-space:pre-wrap">
+function doPost(e) {
+  try {
+    var data = JSON.parse(e.postData.contents);
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var sheet = ss.getSheetByName("2026");
+    // Find the last row and append
+    var lastRow = sheet.getLastRow() + 1;
+    // Map to the correct columns per athlete
+    // Peter: B-H (cols 2-8), Ryan: I-N (9-14), Jon: O-U (15-21)
+    // Tim: V-AA (22-27), Jed: AB-AH (28-34)
+    var colMap = {
+      peter: {pushups:2,pullups:3,squats:4,swim:5,bench:6,bike:7,run:8},
+      ryan:  {pushups:9,pullups:10,swim:11,bench:12,bike:13,run:14},
+      jon:   {pushups:15,pullups:16,squats:17,row:18,bike:19,bench:20,run:21},
+      tim:   {pushups:22,pullups:23,bike:24,swim:25,run:26,ski:27},
+      jed:   {pushups:28,pullups:29,squats:30,bench:31,bike:32,run:33,swim:34}
+    };
+    var athlete = data.athlete.toLowerCase();
+    var cols = colMap[athlete];
+    if (!cols) throw new Error("Unknown athlete: " + athlete);
+    // Write date in col A
+    sheet.getRange(lastRow, 1).setValue(new Date(data.date));
+    // Write each metric
+    for (var metric in cols) {
+      if (data[metric] && data[metric] !== 0) {
+        sheet.getRange(lastRow, cols[metric]).setValue(data[metric]);
+      }
+    }
+    return ContentService.createTextOutput(JSON.stringify({success:true}))
+      .setMimeType(ContentService.MimeType.JSON);
+  } catch(err) {
+    return ContentService.createTextOutput(JSON.stringify({success:false, error:err.message}))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+}
+
+function doGet(e) {
+  // Returns all monthly totals as JSON for the app to read
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName("2026");
+  var data = sheet.getDataRange().getValues();
+  var months = {};
+  var monthLabels = ["JANUARY TOTAL","FEBRUARY TOTAL","MARCH TOTAL","APRIL TOTAL",
+    "MAY TOTAL","JUNE TOTAL","JULY TOTAL","AUGUST TOTAL","SEPTEMBER TOTAL",
+    "OCTOBER TOTAL","NOVEMBER TOTAL","DECEMBER TOTAL"];
+  var monthKeys = ["jan","feb","mar","apr","may","jun","jul","aug","sep","oct","nov","dec"];
+  for (var i = 0; i < data.length; i++) {
+    var cell = String(data[i][0]).toUpperCase().trim();
+    for (var m = 0; m < monthLabels.length; m++) {
+      if (cell.indexOf(monthLabels[m]) !== -1) {
+        var row = data[i];
+        months[monthKeys[m]] = {
+          peter:{pushups:row[1],pullups:row[2],squats:row[3],swim:row[4],bench:row[5],bike:row[6],run:row[7]},
+          ryan: {pushups:row[8],pullups:row[9],swim:row[10],bench:row[11],bike:row[12],run:row[13]},
+          jon:  {pushups:row[14],pullups:row[15],squats:row[16],row:row[17],bike:row[18],bench:row[19],run:row[20]},
+          tim:  {pushups:row[21],pullups:row[22],bike:row[23],swim:row[24],run:row[25],ski:row[26]},
+          jed:  {pushups:row[27],pullups:row[28],squats:row[29],bench:row[30],bike:row[31],run:row[32],swim:row[33]}
+        };
+      }
+    }
+  }
+  return ContentService.createTextOutput(JSON.stringify(months))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+      </pre>
+    </div>
+
+    <div class="entry-form">
+      <div class="ftitle">Log a workout</div>
+      <div class="fsub">Fill in what you did. All fields are optional — enter only what applies.<br>
+        <span id="sync-status" style="color:var(--blair-cool-grey)">⚪ Not connected to Google Sheets (session-only mode)</span>
+      </div>
+      <div class="form-grid">
+        <div class="ffield"><label>Date</label><input type="date" id="f-date" /></div>
+        <div class="ffield"><label>Athlete</label>
+          <select id="f-athlete">
+            <option>Peter</option><option>Ryan</option><option>Jon</option><option>Tim</option><option>Jed</option>
+          </select>
+        </div>
+        <div class="ffield"><label>Push-ups</label><input type="number" id="f-pushups" placeholder="0" min="0" /></div>
+        <div class="ffield"><label>Pull-ups</label><input type="number" id="f-pullups" placeholder="0" min="0" /></div>
+        <div class="ffield"><label>Squats / Lunges</label><input type="number" id="f-squats" placeholder="0" min="0" /></div>
+        <div class="ffield"><label>Bench (lbs)</label><input type="number" id="f-bench" placeholder="0" min="0" /></div>
+        <div class="ffield"><label>Run (miles)</label><input type="number" id="f-run" placeholder="0" step="0.1" min="0" /></div>
+        <div class="ffield"><label>Bike (miles)</label><input type="number" id="f-bike" placeholder="0" step="0.1" min="0" /></div>
+        <div class="ffield"><label>Swim (yds/km)</label><input type="number" id="f-swim" placeholder="0" step="0.1" min="0" /></div>
+        <div class="ffield"><label>Row (m) — Jon</label><input type="number" id="f-row" placeholder="0" min="0" /></div>
+        <div class="ffield"><label>Nordic Ski (mi) — Tim</label><input type="number" id="f-ski" placeholder="0" step="0.1" min="0" /></div>
+        <div class="ffield"><label>Notes</label><input type="text" id="f-notes" placeholder="e.g. ski day!" /></div>
+      </div>
+      <div class="form-actions">
+        <button class="btn-p" onclick="logWorkout()">Log workout</button>
+        <button class="btn-s" onclick="clearForm()">Clear</button>
+      </div>
+    </div>
+    <div id="recent-entries"></div>
+  </div>
+
+  <div class="page-footer">Fitness Competition 2026 &nbsp;·&nbsp; Stay F*cking Positive</div>
+</div>
+
+<script>
+// ─────────────────────────────────────────────────────────────
+// SET THIS to your deployed Google Apps Script Web App URL
+// e.g. "https://script.google.com/macros/s/YOUR_ID/exec"
+// Leave blank to run in session-only mode
+const APPS_SCRIPT_URL = "https://script.google.com/a/macros/blair.edu/s/AKfycbxvv5aHUbGZ-W58VlvJn5WhInwnZdrQnLYe5l6TgNKzmuigsLJzoCogLaBCwtqAQkym/exec";
+// ─────────────────────────────────────────────────────────────
+
+const COLORS = { peter:'#004b8d', ryan:'#74a333', jon:'#f15d22', tim:'#00b2ba', jed:'#770055' };
+const NAMES  = ['peter','ryan','jon','tim','jed'];
+const DISPLAY = { peter:'Peter', ryan:'Ryan', jon:'Jon', tim:'Tim', jed:'Jed' };
+const MONTHS = ['jan','feb','mar','apr','may'];
+const MONTH_LABELS = ['January','February','March','April','May'];
+
+const ATHLETE_METRICS = {
+  peter: ['pushups','pullups','squats','swim','bench','bike','run'],
+  ryan:  ['pushups','pullups','swim','bench','bike','run'],
+  jon:   ['pushups','pullups','squats','row','bike','bench','run'],
+  tim:   ['pushups','pullups','bike','swim','run','ski'],
+  jed:   ['pushups','pullups','squats','bench','bike','run','swim'],
+};
+const METRIC_LABELS = {
+  pushups:'Push-ups', pullups:'Pull-ups', squats:'Squats/Lunges',
+  swim:'Swim', bench:'Bench (lbs)', bike:'Bike (mi)',
+  run:'Run (mi)', row:'Row (m)', ski:'Nordic Ski (mi)'
+};
+
+// ── STATIC DATA from spreadsheet (monthly totals rows) ──
+// Jed YTD calculated from monthly totals since spreadsheet YTD row was blank
+const BASE_DATA = {
+  peter:{
+    jan:{pushups:1970,pullups:1134,squats:514,swim:27.1,bench:0,bike:19.5,run:29.95},
+    feb:{pushups:960,pullups:755,squats:250,swim:20.85,bench:0,bike:0,run:32},
+    mar:{pushups:1214,pullups:826,squats:166,swim:15.5,bench:0,bike:0,run:42.3},
+    apr:{pushups:1053,pullups:1023,squats:298,swim:624.95,bench:1900,bike:0,run:45.7},
+    may:{pushups:150,pullups:140,squats:60,swim:5.1,bench:0,bike:0,run:11.4},
+  },
+  ryan:{
+    jan:{pushups:1550,pullups:540,swim:0,bench:0,bike:22,run:4.7,squats:0},
+    feb:{pushups:0,pullups:0,swim:0,bench:0,bike:0,run:0,squats:0},
+    mar:{pushups:995,pullups:305,swim:0,bench:175,bike:12,run:4,squats:0},
+    apr:{pushups:2070,pullups:620,swim:0,bench:350,bike:5.5,run:3.5,squats:0},
+    may:{pushups:300,pullups:0,swim:0,bench:0,bike:0,run:0,squats:0},
+  },
+  jon:{
+    jan:{pushups:1502,pullups:536,squats:375,row:4500,bike:89.65,bench:0,run:9},
+    feb:{pushups:1430,pullups:460,squats:410,row:3600,bike:79.7,bench:0,run:13.7},
+    mar:{pushups:1500,pullups:600,squats:500,row:9200,bike:125.85,bench:0,run:4.85},
+    apr:{pushups:900,pullups:450,squats:215,row:19600,bike:95.15,bench:0,run:8.1},
+    may:{pushups:265,pullups:70,squats:55,row:5000,bike:21.1,bench:0,run:4.35},
+  },
+  tim:{
+    jan:{pushups:745,pullups:12,bike:214,swim:4250,run:35.15,ski:0,squats:0,bench:0},
+    feb:{pushups:45,pullups:15,bike:189,swim:0,run:67.7,ski:0,squats:0,bench:0},
+    mar:{pushups:0,pullups:0,bike:89.25,swim:2300,run:53.2,ski:0,squats:0,bench:0},
+    apr:{pushups:0,pullups:0,bike:0,swim:0,run:0,ski:0,squats:0,bench:0},
+    may:{pushups:0,pullups:0,bike:0,swim:0,run:0,ski:0,squats:0,bench:0},
+  },
+  // Jed: Jan 2030 push-ups/230 pull-ups/17 bike/65 run/1000 swim
+  //       Feb 890/103/10 bike/64.5 run
+  //       Mar 0/0/0/64 run
+  jed:{
+    jan:{pushups:2030,pullups:230,squats:0,bench:0,bike:17,run:65,swim:1000},
+    feb:{pushups:890,pullups:103,squats:0,bench:0,bike:10,run:64.5,swim:0},
+    mar:{pushups:0,pullups:0,squats:0,bench:0,bike:0,run:64,swim:0},
+    apr:{pushups:0,pullups:0,squats:0,bench:0,bike:0,run:0,swim:0},
+    may:{pushups:0,pullups:0,squats:0,bench:0,bike:0,run:0,swim:0},
+  },
+};
+
+// Live DATA object — starts from base, updated from Apps Script if connected
+let DATA = JSON.parse(JSON.stringify(BASE_DATA));
+
+// Compute YTD by summing all months
+function computeYTD() {
+  const allMetrics = ['pushups','pullups','squats','swim','bench','bike','run','row','ski'];
+  NAMES.forEach(n => {
+    DATA[n].ytd = {};
+    allMetrics.forEach(m => {
+      DATA[n].ytd[m] = MONTHS.reduce((s, mo) => s + (DATA[n][mo]?.[m] || 0), 0);
+    });
+  });
+}
+computeYTD();
+
+// Tim's ski YTD from spreadsheet (76.45) — spreadsheet has it, monthly totals show 0 so use the YTD row value
+DATA.tim.ytd.ski = 76.45;
+
+let loggedEntries = [];
+let charts = {};
+
+function g(name, period, metric) { return DATA[name]?.[period]?.[metric] || 0; }
+function fmt(val) {
+  if (!val || val === 0) return '0';
+  const r = Math.round(val * 10) / 10;
+  return r.toLocaleString();
+}
+
+// ── GOOGLE SHEETS LIVE LOAD ──
+async function tryLoadFromSheet() {
+  if (!APPS_SCRIPT_URL) return;
+  try {
+    document.getElementById('sync-status').innerHTML = '🔄 Loading from Google Sheets…';
+    const res = await fetch(APPS_SCRIPT_URL);
+    const months = await res.json();
+    // Merge live data
+    NAMES.forEach(n => {
+      MONTHS.forEach(mo => {
+        if (months[mo] && months[mo][n]) {
+          Object.keys(months[mo][n]).forEach(metric => {
+            const v = parseFloat(months[mo][n][metric]);
+            if (!isNaN(v)) DATA[n][mo][metric] = v;
+          });
+        }
+      });
+    });
+    computeYTD();
+    DATA.tim.ytd.ski = Math.max(DATA.tim.ytd.ski, 76.45);
+    document.getElementById('sync-status').innerHTML = '🟢 Live — connected to Google Sheets';
+    document.getElementById('sync-notice').innerHTML =
+      '<strong>🟢 Google Sheets connected.</strong> Stats are loading live from your sheet. Workout submissions will write directly back.';
+    renderOverview();
+  } catch(e) {
+    document.getElementById('sync-status').innerHTML = '🔴 Could not reach Google Sheets — showing cached data';
+  }
+}
+
+// ── SUBMIT TO GOOGLE SHEETS ──
+async function submitToSheet(entry) {
+  if (!APPS_SCRIPT_URL) return false;
+  try {
+    await fetch(APPS_SCRIPT_URL, {
+      method:'POST',
+      body: JSON.stringify(entry),
+    });
+    return true;
+  } catch(e) {
+    return false;
+  }
+}
+
+// ── TAB SWITCHING ──
+function switchTab(tab) {
+  ['overview','athletes','leaderboard','trends','goals','log'].forEach(t => {
+    document.getElementById('tab-'+t).style.display = t===tab ? '' : 'none';
+  });
+  document.querySelectorAll('.tab').forEach((el,i) => {
+    el.classList.toggle('active', ['overview','athletes','leaderboard','trends','goals','log'][i]===tab);
+  });
+  if (tab==='leaderboard') renderLeaderboard();
+  if (tab==='trends')      renderTrends();
+  if (tab==='goals')       renderGoals();
+  if (tab==='athletes')    renderAthletes();
+}
+
+// ── OVERVIEW ──
+function renderOverview() {
+  const tot = m => NAMES.reduce((s,n) => s + g(n,'ytd',m), 0);
+  document.getElementById('overview-metrics').innerHTML = `
+    <div class="metric-card" style="border-left-color:#004b8d"><div class="mlabel">Push-ups</div><div class="mval">${Math.round(tot('pushups')).toLocaleString()}</div><div class="msub">all athletes YTD</div></div>
+    <div class="metric-card" style="border-left-color:#74a333"><div class="mlabel">Pull-ups</div><div class="mval">${Math.round(tot('pullups')).toLocaleString()}</div><div class="msub">all athletes YTD</div></div>
+    <div class="metric-card" style="border-left-color:#f15d22"><div class="mlabel">Squats/Lunges</div><div class="mval">${Math.round(tot('squats')).toLocaleString()}</div><div class="msub">all athletes YTD</div></div>
+    <div class="metric-card" style="border-left-color:#00b2ba"><div class="mlabel">Miles run</div><div class="mval">${fmt(tot('run'))}</div><div class="msub">all athletes YTD</div></div>
+    <div class="metric-card" style="border-left-color:#dd971a"><div class="mlabel">Miles biked</div><div class="mval">${fmt(tot('bike'))}</div><div class="msub">all athletes YTD</div></div>
+    <div class="metric-card" style="border-left-color:#770055"><div class="mlabel">Swim</div><div class="mval">${Math.round(tot('swim')).toLocaleString()}</div><div class="msub">yds/km YTD</div></div>`;
+
+  document.getElementById('pushup-legend').innerHTML = NAMES.map(n =>
+    `<span class="legend-item"><span class="ldot" style="background:${COLORS[n]}"></span>${DISPLAY[n]}</span>`
+  ).join('');
+  if (charts.pushup) charts.pushup.destroy();
+  charts.pushup = new Chart(document.getElementById('pushupChart'), {
+    type:'bar',
+    data:{ labels:NAMES.map(n=>DISPLAY[n]), datasets:[{ data:NAMES.map(n=>g(n,'ytd','pushups')), backgroundColor:NAMES.map(n=>COLORS[n]), borderRadius:5 }] },
+    options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}},
+      scales:{ y:{beginAtZero:true,ticks:{font:{size:11},color:'#72808a'},grid:{color:'#e9e7e5'}}, x:{ticks:{font:{size:13,weight:'600'},color:'#093266'},grid:{display:false}} } }
+  });
+  const acts = [
+    {label:'Push-ups', val:Math.round(tot('pushups')), color:'#004b8d'},
+    {label:'Pull-ups', val:Math.round(tot('pullups')), color:'#0077a0'},
+    {label:'Squats',   val:Math.round(tot('squats')),  color:'#74a333'},
+    {label:'Swim',     val:Math.round(tot('swim')),    color:'#770055'},
+    {label:'Bike mi',  val:Math.round(tot('bike')),    color:'#00b2ba'},
+    {label:'Run mi',   val:Math.round(tot('run')),     color:'#f15d22'},
+    {label:'Bench lbs',val:Math.round(tot('bench')),   color:'#dd971a'},
+    {label:'Row m',    val:Math.round(tot('row')),     color:'#da1a32'},
+  ];
+  if (charts.activity) charts.activity.destroy();
+  charts.activity = new Chart(document.getElementById('activityChart'), {
+    type:'bar',
+    data:{ labels:acts.map(a=>a.label), datasets:[{data:acts.map(a=>a.val), backgroundColor:acts.map(a=>a.color), borderRadius:5}] },
+    options:{ indexAxis:'y', responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}},
+      scales:{ x:{beginAtZero:true,ticks:{font:{size:11},color:'#72808a'},grid:{color:'#e9e7e5'}}, y:{ticks:{font:{size:12,weight:'600'},color:'#093266'},grid:{display:false}} } }
+  });
+}
+
+// ── ATHLETES ──
+function renderAthletes() {
+  const maxes = {};
+  ['pushups','pullups','squats','swim','bench','bike','run','row','ski'].forEach(m => {
+    maxes[m] = Math.max(...NAMES.map(n => g(n,'ytd',m)), 1);
+  });
+  document.getElementById('athlete-cards').innerHTML = NAMES.map(name => {
+    const metrics = ATHLETE_METRICS[name];
+    const rows = metrics.map(m => {
+      const val = g(name,'ytd',m);
+      const pct = Math.round(val / maxes[m] * 100);
+      return `<div class="srow">
+        <span class="sname">${METRIC_LABELS[m]}</span>
+        <span class="sval" style="color:${COLORS[name]}">${fmt(val)}
+          <span class="sbar-wrap"><span class="sbar-fill" style="width:${pct}%;background:${COLORS[name]}"></span></span>
+        </span>
+      </div>`;
+    }).join('');
+    return `<div class="athlete-card">
+      <div class="acard-head" style="border-bottom-color:${COLORS[name]}">
+        <div class="acard-av" style="background:${COLORS[name]}">${DISPLAY[name][0]}</div>
+        <div><div class="acard-name" style="color:${COLORS[name]}">${DISPLAY[name]}</div><div class="acard-sub">Year to date</div></div>
+      </div>
+      <div class="acard-stats">${rows}</div>
+    </div>`;
+  }).join('');
+}
+
+// ── LEADERBOARD — ALL STATS TABLE ──
+function renderLeaderboard() {
+  const sortMetric = document.getElementById('lb-sort').value;
+  const period = document.getElementById('lb-period').value;
+  const allMetrics = ['pushups','pullups','squats','swim','bench','bike','run','row','ski'];
+
+  // Sort athletes by chosen metric
+  const sorted = [...NAMES].sort((a,b) => g(b,period,sortMetric) - g(a,period,sortMetric));
+  const medals = ['🥇','🥈','🥉','',''];
+
+  // Build rank badge for a metric
+  function rankFor(name, metric) {
+    const ranked = [...NAMES].sort((a,b) => g(b,period,metric) - g(a,period,metric));
+    const idx = ranked.indexOf(name);
+    const val = g(name,period,metric);
+    if (val === 0) return '';
+    const cols = ['#c9a227','#a8a8a8','#b87333','',''];
+    if (idx < 3) return `<span class="rank-badge" style="background:${cols[idx]}22;color:${cols[idx]}">${idx+1}</span>`;
+    return '';
+  }
+
+  const headerCells = allMetrics.map(m =>
+    `<th style="${m===sortMetric?'background:#093266':''}">${METRIC_LABELS[m].replace(' (lbs)','').replace(' (mi)','').replace(' (m)','')}</th>`
+  ).join('');
+
+  const bodyRows = sorted.map((name, i) => {
+    const cells = allMetrics.map(m => {
+      const val = g(name, period, m);
+      const numClass = val === 0 ? 'stat-num stat-zero' : 'stat-num';
+      const highlight = m === sortMetric ? `style="background:${COLORS[name]}10;"` : '';
+      return `<td ${highlight}><span class="${numClass}" style="${val>0?'color:'+COLORS[name]:''}">${rankFor(name,m)}${val ? fmt(val) : '—'}</span></td>`;
+    }).join('');
+    return `<tr>
+      <td>
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="font-size:16px">${medals[i]||i+1}</span>
+          <div class="avatar" style="background:${COLORS[name]}22;color:${COLORS[name]}">${name[0].toUpperCase()}</div>
+          <strong>${DISPLAY[name]}</strong>
+        </div>
+      </td>
+      ${cells}
+    </tr>`;
+  }).join('');
+
+  document.getElementById('lb-table').innerHTML =
+    `<table class="stats-table">
+      <thead><tr><th>Athlete</th>${headerCells}</tr></thead>
+      <tbody>${bodyRows}</tbody>
+    </table>`;
+}
+
+// ── TRENDS ──
+function renderTrends() {
+  const athlete  = document.getElementById('trend-athlete').value;
+  const exercise = document.getElementById('trend-ex').value;
+  const athletes = athlete==='all' ? NAMES : [athlete];
+  document.getElementById('trend-legend').innerHTML = athletes.map(n =>
+    `<span class="legend-item"><span class="ldot" style="background:${COLORS[n]}"></span>${DISPLAY[n]}</span>`
+  ).join('');
+  if (charts.trend) charts.trend.destroy();
+  charts.trend = new Chart(document.getElementById('trendChart'), {
+    type:'line',
+    data:{ labels:MONTH_LABELS, datasets:athletes.map(n=>({
+      label:DISPLAY[n],
+      data:MONTHS.map(m => g(n,m,exercise)),
+      borderColor:COLORS[n], backgroundColor:COLORS[n]+'22',
+      tension:0.3, pointRadius:5, fill:athlete!=='all'
+    }))},
+    options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}},
+      scales:{ y:{beginAtZero:true,ticks:{font:{size:11},color:'#72808a'},grid:{color:'#e9e7e5'}}, x:{ticks:{font:{size:13,weight:'600'},color:'#093266'},grid:{display:false}} } }
+  });
+}
+
+// ── GOALS ──
+function renderGoals() {
+  const GOALS = {
+    pullups: { label:'Pull-ups',      target:1000, current:g('peter','ytd','pullups') },
+    pushups: { label:'Push-ups',      target:2000, current:g('peter','ytd','pushups') },
+    squats:  { label:'Squats/Lunges', target:1000, current:g('peter','ytd','squats') },
+    bench:   { label:'Bench 255 lbs', target:1,    current:1 },
+  };
+  document.getElementById('goals-grid').innerHTML = Object.entries(GOALS).map(([k,go]) => {
+    const pct = Math.min(100, Math.round(go.current/go.target*100));
+    return `<div class="goal-card">
+      <div class="gtitle">${go.label}</div>
+      <div class="gval">${go.current.toLocaleString()} <span style="font-size:15px;color:#72808a;font-weight:400">/ ${go.target.toLocaleString()}</span></div>
+      <div class="gpct">${pct}% complete</div>
+      <div class="gbar-wrap"><div class="gbar" style="width:${pct}%"></div></div>
+    </div>`;
+  }).join('');
+  renderYTDTable();
+}
+
+function renderYTDTable() {
+  const metric = document.getElementById('ytd-metric')?.value || 'pushups';
+  const rows = [...NAMES].sort((a,b) => g(b,'ytd',metric) - g(a,'ytd',metric));
+  const max = g(rows[0],'ytd',metric) || 1;
+  const medals = ['🥇','🥈','🥉','',''];
+  document.getElementById('ytd-table').innerHTML =
+    `<div class="lb-head" style="display:grid;grid-template-columns:40px 1fr 90px 110px;gap:8px;padding:9px 16px">
+      <span></span><span>Athlete</span><span style="text-align:right">${METRIC_LABELS[metric]||metric}</span><span>Progress</span>
+    </div>` +
+    rows.map((name,i) => {
+      const val = g(name,'ytd',metric);
+      const pct = max > 0 ? Math.round(val/max*100) : 0;
+      return `<div style="display:grid;grid-template-columns:40px 1fr 90px 110px;gap:8px;padding:12px 16px;border-top:1px solid var(--blair-web1);align-items:center;font-size:13px">
+        <span style="font-size:18px;text-align:center">${medals[i]||i+1}</span>
+        <div style="display:flex;align-items:center;gap:10px;font-weight:600">
+          <div class="avatar" style="background:${COLORS[name]}22;color:${COLORS[name]}">${name[0].toUpperCase()}</div>
+          ${DISPLAY[name]}
+        </div>
+        <span style="text-align:right;font-family:var(--font-display);font-size:16px;font-weight:700;color:${COLORS[name]}">${val ? fmt(val) : '—'}</span>
+        <div><div style="height:7px;background:var(--blair-web1);border-radius:4px;overflow:hidden"><div style="height:100%;width:${pct}%;background:${COLORS[name]};border-radius:4px"></div></div></div>
+      </div>`;
+    }).join('');
+}
+
+// ── LOG WORKOUT ──
+async function logWorkout() {
+  const entry = {
+    date:    document.getElementById('f-date').value    || new Date().toISOString().slice(0,10),
+    athlete: document.getElementById('f-athlete').value,
+    pushups: +document.getElementById('f-pushups').value || 0,
+    pullups: +document.getElementById('f-pullups').value || 0,
+    squats:  +document.getElementById('f-squats').value  || 0,
+    bench:   +document.getElementById('f-bench').value   || 0,
+    run:     +document.getElementById('f-run').value     || 0,
+    bike:    +document.getElementById('f-bike').value    || 0,
+    swim:    +document.getElementById('f-swim').value    || 0,
+    row:     +document.getElementById('f-row').value     || 0,
+    ski:     +document.getElementById('f-ski').value     || 0,
+    notes:   document.getElementById('f-notes').value
+  };
+  loggedEntries.unshift(entry);
+
+  const toast = document.getElementById('toast');
+  if (APPS_SCRIPT_URL) {
+    toast.style.display = 'block';
+    toast.textContent = '⏳ Sending to Google Sheets…';
+    const ok = await submitToSheet(entry);
+    toast.textContent = ok
+      ? '✅ Logged and saved to Google Sheets!'
+      : '⚠️ Saved locally — could not reach Google Sheets.';
+  } else {
+    toast.style.display = 'block';
+    toast.textContent = '✓ Logged for this session (no Google Sheets URL set).';
+  }
+  setTimeout(() => toast.style.display = 'none', 4000);
+  renderRecentEntries();
+  clearForm();
+}
+
+function clearForm() {
+  ['f-date','f-pushups','f-pullups','f-squats','f-bench','f-run','f-bike','f-swim','f-row','f-ski','f-notes']
+    .forEach(id => document.getElementById(id).value='');
+}
+
+function renderRecentEntries() {
+  if (!loggedEntries.length) return;
+  const rows = loggedEntries.slice(0,8).map(e => {
+    const parts = [];
+    if (e.pushups) parts.push(e.pushups+' push-ups');
+    if (e.pullups) parts.push(e.pullups+' pull-ups');
+    if (e.squats)  parts.push(e.squats+' squats');
+    if (e.bench)   parts.push(e.bench+'lb bench');
+    if (e.run)     parts.push(e.run+'mi run');
+    if (e.bike)    parts.push(e.bike+'mi bike');
+    if (e.swim)    parts.push(e.swim+' swim');
+    if (e.row)     parts.push(e.row+'m row');
+    if (e.ski)     parts.push(e.ski+'mi ski');
+    return `<div style="display:flex;align-items:flex-start;gap:10px;padding:11px 16px;border-top:1px solid var(--blair-web1);font-size:12px">
+      <div class="avatar" style="background:${COLORS[e.athlete.toLowerCase()]}22;color:${COLORS[e.athlete.toLowerCase()]}">${e.athlete[0]}</div>
+      <div style="flex:1"><strong>${e.athlete}</strong> — ${e.date}${e.notes?' · <em style="color:#72808a">'+e.notes+'</em>':''}</div>
+      <div style="color:#72808a;font-size:11px;text-align:right">${parts.join(', ')||'—'}</div>
+    </div>`;
+  }).join('');
+  document.getElementById('recent-entries').innerHTML =
+    `<p class="section-label">Logged this session</p>
+    <div class="leaderboard">
+      <div class="lb-head" style="display:grid;grid-template-columns:auto 1fr auto;gap:8px;padding:9px 16px">
+        <span></span><span>Athlete / date</span><span>Activity</span>
+      </div>${rows}
+    </div>`;
+}
+
+// ── INIT ──
+document.getElementById('f-date').value = new Date().toISOString().slice(0,10);
+renderOverview();
+if (APPS_SCRIPT_URL) tryLoadFromSheet();
+</script>
+</body>
+</html>
