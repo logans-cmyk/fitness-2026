@@ -156,7 +156,7 @@
       </div>
       <div class="htext">
         <h1>Fitness Competition</h1>
-        <p>Stay F*cking Positive &nbsp;·&nbsp; 2026</p>
+        <p>Stay Positive &nbsp;·&nbsp; 2026</p>
       </div>
       <div class="hyear">2026</div>
     </div>
@@ -175,13 +175,7 @@
     </div>
   </div>
 
-  <!-- SYNC NOTICE -->
-  <div class="notice" id="sync-notice">
-    <strong>🔗 Google Sheets sync:</strong> To connect this app to your Google Sheet, deploy the included
-    <strong>Google Apps Script</strong> as a web app and set <code>APPS_SCRIPT_URL</code> at the top of this file.
-    Once connected, workout submissions will write directly to your sheet and all stats will load live.
-    See the <strong>Log workout</strong> tab for setup instructions.
-  </div>
+
 
   <!-- TABS -->
   <div class="tabs">
@@ -285,82 +279,7 @@
   <div id="tab-log" style="display:none">
     <div id="toast" class="toast"></div>
 
-    <!-- APPS SCRIPT SETUP INSTRUCTIONS -->
-    <div class="notice" style="margin-bottom:1.25rem">
-      <strong>🛠 One-time setup to sync with Google Sheets:</strong><br><br>
-      1. Open your Google Sheet → <strong>Extensions → Apps Script</strong><br>
-      2. Paste the script below into the editor and click <strong>Save</strong><br>
-      3. Click <strong>Deploy → New deployment → Web app</strong><br>
-      4. Set <em>Execute as</em>: <strong>Me</strong> &nbsp;|&nbsp; <em>Who has access</em>: <strong>Anyone</strong><br>
-      5. Copy the Web App URL and paste it into the <code>APPS_SCRIPT_URL</code> variable at the top of this HTML file<br><br>
-      <strong>Apps Script to paste:</strong>
-      <pre style="background:#f5f5f5;border:1px solid #ddd;border-radius:6px;padding:12px;margin-top:8px;font-size:11px;overflow-x:auto;white-space:pre-wrap">
-function doPost(e) {
-  try {
-    var data = JSON.parse(e.postData.contents);
-    var ss = SpreadsheetApp.getActiveSpreadsheet();
-    var sheet = ss.getSheetByName("2026");
-    // Find the last row and append
-    var lastRow = sheet.getLastRow() + 1;
-    // Map to the correct columns per athlete
-    // Peter: B-H (cols 2-8), Ryan: I-N (9-14), Jon: O-U (15-21)
-    // Tim: V-AA (22-27), Jed: AB-AH (28-34)
-    var colMap = {
-      peter: {pushups:2,pullups:3,squats:4,swim:5,bench:6,bike:7,run:8},
-      ryan:  {pushups:9,pullups:10,swim:11,bench:12,bike:13,run:14},
-      jon:   {pushups:15,pullups:16,squats:17,row:18,bike:19,bench:20,run:21},
-      tim:   {pushups:22,pullups:23,bike:24,swim:25,run:26,ski:27},
-      jed:   {pushups:28,pullups:29,squats:30,bench:31,bike:32,run:33,swim:34}
-    };
-    var athlete = data.athlete.toLowerCase();
-    var cols = colMap[athlete];
-    if (!cols) throw new Error("Unknown athlete: " + athlete);
-    // Write date in col A
-    sheet.getRange(lastRow, 1).setValue(new Date(data.date));
-    // Write each metric
-    for (var metric in cols) {
-      if (data[metric] && data[metric] !== 0) {
-        sheet.getRange(lastRow, cols[metric]).setValue(data[metric]);
-      }
-    }
-    return ContentService.createTextOutput(JSON.stringify({success:true}))
-      .setMimeType(ContentService.MimeType.JSON);
-  } catch(err) {
-    return ContentService.createTextOutput(JSON.stringify({success:false, error:err.message}))
-      .setMimeType(ContentService.MimeType.JSON);
-  }
-}
 
-function doGet(e) {
-  // Returns all monthly totals as JSON for the app to read
-  var ss = SpreadsheetApp.getActiveSpreadsheet();
-  var sheet = ss.getSheetByName("2026");
-  var data = sheet.getDataRange().getValues();
-  var months = {};
-  var monthLabels = ["JANUARY TOTAL","FEBRUARY TOTAL","MARCH TOTAL","APRIL TOTAL",
-    "MAY TOTAL","JUNE TOTAL","JULY TOTAL","AUGUST TOTAL","SEPTEMBER TOTAL",
-    "OCTOBER TOTAL","NOVEMBER TOTAL","DECEMBER TOTAL"];
-  var monthKeys = ["jan","feb","mar","apr","may","jun","jul","aug","sep","oct","nov","dec"];
-  for (var i = 0; i < data.length; i++) {
-    var cell = String(data[i][0]).toUpperCase().trim();
-    for (var m = 0; m < monthLabels.length; m++) {
-      if (cell.indexOf(monthLabels[m]) !== -1) {
-        var row = data[i];
-        months[monthKeys[m]] = {
-          peter:{pushups:row[1],pullups:row[2],squats:row[3],swim:row[4],bench:row[5],bike:row[6],run:row[7]},
-          ryan: {pushups:row[8],pullups:row[9],swim:row[10],bench:row[11],bike:row[12],run:row[13]},
-          jon:  {pushups:row[14],pullups:row[15],squats:row[16],row:row[17],bike:row[18],bench:row[19],run:row[20]},
-          tim:  {pushups:row[21],pullups:row[22],bike:row[23],swim:row[24],run:row[25],ski:row[26]},
-          jed:  {pushups:row[27],pullups:row[28],squats:row[29],bench:row[30],bike:row[31],run:row[32],swim:row[33]}
-        };
-      }
-    }
-  }
-  return ContentService.createTextOutput(JSON.stringify(months))
-    .setMimeType(ContentService.MimeType.JSON);
-}
-      </pre>
-    </div>
 
     <div class="entry-form">
       <div class="ftitle">Log a workout</div>
@@ -393,7 +312,7 @@ function doGet(e) {
     <div id="recent-entries"></div>
   </div>
 
-  <div class="page-footer">Fitness Competition 2026 &nbsp;·&nbsp; Stay F*cking Positive</div>
+  <div class="page-footer">Fitness Competition 2026 &nbsp;·&nbsp; Stay Positive</div>
 </div>
 
 <script>
