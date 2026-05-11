@@ -318,7 +318,7 @@
 // SET THIS to your deployed Google Apps Script Web App URL
 // e.g. "https://script.google.com/macros/s/YOUR_ID/exec"
 // Leave blank to run in session-only mode
-const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwlA4uUTv0G2cu2LzW-ki8fxG-BW8ufCef-VnfTwB3EXmT8oTrZq3UofydSqoFGabSt/exec";
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyXJcpYEURQ3fLiBCOlm1teiyunYDsm7AoRBUiR3I3X4fG7qtldD0g7gf16C2AAGwF-BQ/exec";
 // ─────────────────────────────────────────────────────────────
 
 const COLORS = { peter:'#004b8d', ryan:'#74a333', jon:'#f15d22', tim:'#00b2ba', jed:'#770055' };
@@ -414,7 +414,7 @@ function fmt(val) {
 async function loadLiveData() {
   if (!APPS_SCRIPT_URL) return;
   try {
-    const proxyURL = 'https://api.allorigins.win/get?url=' + encodeURIComponent(APPS_SCRIPT_URL);
+    
     const res = await fetch(proxyURL);
     const wrapper = await res.json();
     const liveMonths = JSON.parse(wrapper.contents);
