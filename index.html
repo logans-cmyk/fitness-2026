@@ -412,9 +412,9 @@ function fmt(val) {
 
 // ── LIVE LOAD from Google Sheet via CORS proxy ──
 async function loadLiveData() {
-  if (!APPS_SCRIPT_URL) return;
   try {
-    const res = await fetch(APPS_SCRIPT_URL + '?data=true');
+    // Read from data.json in GitHub repo — no CORS issues
+    const res = await fetch('https://raw.githubusercontent.com/logans-cmyk/fitness-2026/main/data.json?t=' + Date.now());
     const liveMonths = await res.json();
     NAMES.forEach(n => {
       ALL_MONTHS.forEach(mo => {
@@ -430,7 +430,7 @@ async function loadLiveData() {
     computeYTD();
     DATA.tim.ytd.ski = Math.max(DATA.tim.ytd.ski, 76.45);
     renderOverview();
-    console.log('Live data loaded from Google Sheet');
+    console.log('Live data loaded from GitHub data.json');
   } catch(err) {
     console.log('Could not load live data, showing cached data:', err);
   }
