@@ -414,10 +414,8 @@ function fmt(val) {
 async function loadLiveData() {
   if (!APPS_SCRIPT_URL) return;
   try {
-    
-    const res = await fetch(proxyURL);
-    const wrapper = await res.json();
-    const liveMonths = JSON.parse(wrapper.contents);
+    const res = await fetch(APPS_SCRIPT_URL + '?data=true');
+    const liveMonths = await res.json();
     NAMES.forEach(n => {
       ALL_MONTHS.forEach(mo => {
         if (liveMonths[mo] && liveMonths[mo][n]) {
