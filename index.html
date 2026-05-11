@@ -410,12 +410,14 @@ function fmt(val) {
   return r.toLocaleString();
 }
 
-// ── LIVE LOAD from Google Sheet via JSONP (bypasses CORS) ──
-function loadLiveData() {
+// ── LIVE LOAD from Google Sheet via CORS proxy ──
+async function loadLiveData() {
   if (!APPS_SCRIPT_URL) return;
-  const callbackName = 'jsonpCallback_' + Date.now();
-  window[callbackName] = function(liveMonths) {
-    // Merge live monthly data into DATA
+  try {
+    const proxyURL = 'https://api.allorigins.win/get?url=' + encodeURIComponent(APPS_SCRIPT_URL);
+    const res = await fetch(proxyURL);
+    const wrapper = await res.json();
+    const liveMonths = JSON.parse(wrapper.contents);
     NAMES.forEach(n => {
       ALL_MONTHS.forEach(mo => {
         if (liveMonths[mo] && liveMonths[mo][n]) {
@@ -429,21 +431,11 @@ function loadLiveData() {
     });
     computeYTD();
     DATA.tim.ytd.ski = Math.max(DATA.tim.ytd.ski, 76.45);
-    // Re-render all visible content with live data
     renderOverview();
     console.log('Live data loaded from Google Sheet');
-    // Clean up
-    delete window[callbackName];
-    document.getElementById('jsonp-script').remove();
-  };
-  const script = document.createElement('script');
-  script.id = 'jsonp-script';
-  script.src = APPS_SCRIPT_URL + '?callback=' + callbackName;
-  script.onerror = function() {
-    console.log('Could not load live data, showing cached data');
-    delete window[callbackName];
-  };
-  document.head.appendChild(script);
+  } catch(err) {
+    console.log('Could not load live data, showing cached data:', err);
+  }
 }
 
 // ── SUBMIT TO GOOGLE SHEETS ──
