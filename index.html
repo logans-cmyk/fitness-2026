@@ -444,7 +444,7 @@ async function submitToSheet(entry) {
       body: JSON.stringify(entry),
     });
     // Reload live data so dashboard reflects the new entry
-    setTimeout(loadLiveData, 1500);
+    // retry handled by setInterval
     return true;
   } catch(e) {
     return false;
@@ -734,6 +734,9 @@ loadLiveData().then(() => {
 setInterval(function() {
   loadLiveData().then(() => {
     renderOverview();
+    renderAthletes();
+    renderLeaderboard();
+    renderGoals();
   });
 }, 30000);
 </script>
