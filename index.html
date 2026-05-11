@@ -318,7 +318,7 @@
 // SET THIS to your deployed Google Apps Script Web App URL
 // e.g. "https://script.google.com/macros/s/YOUR_ID/exec"
 // Leave blank to run in session-only mode
-const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxDb-LehODYHVWTAt0Ck2EkYdnWQX04YvUsl8v6g1QM7fkNgcghVIld_rK5TNLP1abMLg/exec";
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwlA4uUTv0G2cu2LzW-ki8fxG-BW8ufCef-VnfTwB3EXmT8oTrZq3UofydSqoFGabSt/exec";
 // ─────────────────────────────────────────────────────────────
 
 const COLORS = { peter:'#004b8d', ryan:'#74a333', jon:'#f15d22', tim:'#00b2ba', jed:'#770055' };
@@ -383,23 +383,22 @@ const BASE_DATA = {
   },
 };
 
-// Live DATA object — starts from base, updated from Apps Script if connected
+// Live DATA object — starts from base, updated live from sheet via JSONP
 let DATA = JSON.parse(JSON.stringify(BASE_DATA));
 
-// Compute YTD by summing all months
+const ALL_METRICS = ['pushups','pullups','squats','swim','bench','bike','run','row','ski'];
+const ALL_MONTHS  = ['jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov','dec'];
+
 function computeYTD() {
-  const allMetrics = ['pushups','pullups','squats','swim','bench','bike','run','row','ski'];
   NAMES.forEach(n => {
     DATA[n].ytd = {};
-    allMetrics.forEach(m => {
-      DATA[n].ytd[m] = MONTHS.reduce((s, mo) => s + (DATA[n][mo]?.[m] || 0), 0);
+    ALL_METRICS.forEach(m => {
+      DATA[n].ytd[m] = ALL_MONTHS.reduce((s, mo) => s + (DATA[n][mo]?.[m] || 0), 0);
     });
   });
 }
 computeYTD();
-
-// Tim's ski YTD from spreadsheet (76.45) — spreadsheet has it, monthly totals show 0 so use the YTD row value
-DATA.tim.ytd.ski = 76.45;
+DATA.tim.ytd.ski = Math.max(DATA.tim.ytd.ski, 76.45);
 
 let loggedEntries = [];
 let charts = {};
@@ -411,8 +410,41 @@ function fmt(val) {
   return r.toLocaleString();
 }
 
-// Live load removed — data is baked in from spreadsheet
-// Submissions still write to Google Sheet via doPost
+// ── LIVE LOAD from Google Sheet via JSONP (bypasses CORS) ──
+function loadLiveData() {
+  if (!APPS_SCRIPT_URL) return;
+  const callbackName = 'jsonpCallback_' + Date.now();
+  window[callbackName] = function(liveMonths) {
+    // Merge live monthly data into DATA
+    NAMES.forEach(n => {
+      ALL_MONTHS.forEach(mo => {
+        if (liveMonths[mo] && liveMonths[mo][n]) {
+          DATA[n][mo] = DATA[n][mo] || {};
+          Object.keys(liveMonths[mo][n]).forEach(metric => {
+            const v = parseFloat(liveMonths[mo][n][metric]);
+            if (!isNaN(v)) DATA[n][mo][metric] = v;
+          });
+        }
+      });
+    });
+    computeYTD();
+    DATA.tim.ytd.ski = Math.max(DATA.tim.ytd.ski, 76.45);
+    // Re-render all visible content with live data
+    renderOverview();
+    console.log('Live data loaded from Google Sheet');
+    // Clean up
+    delete window[callbackName];
+    document.getElementById('jsonp-script').remove();
+  };
+  const script = document.createElement('script');
+  script.id = 'jsonp-script';
+  script.src = APPS_SCRIPT_URL + '?callback=' + callbackName;
+  script.onerror = function() {
+    console.log('Could not load live data, showing cached data');
+    delete window[callbackName];
+  };
+  document.head.appendChild(script);
+}
 
 // ── SUBMIT TO GOOGLE SHEETS ──
 async function submitToSheet(entry) {
@@ -422,6 +454,8 @@ async function submitToSheet(entry) {
       method:'POST',
       body: JSON.stringify(entry),
     });
+    // Reload live data so dashboard reflects the new entry
+    setTimeout(loadLiveData, 1500);
     return true;
   } catch(e) {
     return false;
@@ -698,6 +732,7 @@ function renderRecentEntries() {
 // ── INIT ──
 document.getElementById('f-date').value = new Date().toISOString().slice(0,10);
 renderOverview();
+loadLiveData();
 </script>
 </body>
 </html>
