@@ -429,7 +429,6 @@ async function loadLiveData() {
     });
     computeYTD();
     DATA.tim.ytd.ski = Math.max(DATA.tim.ytd.ski, 76.45);
-    renderOverview();
     console.log('Live data loaded from GitHub data.json');
   } catch(err) {
     console.log('Could not load live data, showing cached data:', err);
@@ -721,8 +720,12 @@ function renderRecentEntries() {
 
 // ── INIT ──
 document.getElementById('f-date').value = new Date().toISOString().slice(0,10);
-renderOverview();
-loadLiveData();
+// Load live data FIRST, then render — no stale numbers ever shown
+loadLiveData().then(() => {
+  renderOverview();
+}).catch(() => {
+  renderOverview();
+});
 </script>
 </body>
 </html>
