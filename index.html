@@ -723,9 +723,19 @@ document.getElementById('f-date').value = new Date().toISOString().slice(0,10);
 // Load live data FIRST, then render — no stale numbers ever shown
 loadLiveData().then(() => {
   renderOverview();
+  renderAthletes();
+  renderLeaderboard();
+  renderGoals();
 }).catch(() => {
   renderOverview();
 });
+
+// Also reload live data every 30 seconds to catch any updates
+setInterval(function() {
+  loadLiveData().then(() => {
+    renderOverview();
+  });
+}, 30000);
 </script>
 </body>
 </html>
