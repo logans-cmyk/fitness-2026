@@ -414,7 +414,10 @@ function fmt(val) {
 async function loadLiveData() {
   try {
     // Read from data.json in GitHub repo — no CORS issues
-    const res = await fetch('https://raw.githubusercontent.com/logans-cmyk/fitness-2026/main/data.json?t=' + Date.now());
+    // Use GitHub API directly to bypass CDN cache
+    const res = await fetch('https://api.github.com/repos/logans-cmyk/fitness-2026/contents/data.json', {
+      headers: { 'Accept': 'application/vnd.github.v3.raw', 'Cache-Control': 'no-cache' }
+    });
     const liveMonths = await res.json();
     NAMES.forEach(n => {
       ALL_MONTHS.forEach(mo => {
