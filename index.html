@@ -415,8 +415,8 @@ async function loadLiveData() {
   try {
     // Read from data.json in GitHub repo — no CORS issues
     // Use GitHub API directly to bypass CDN cache
-    const res = await fetch('https://api.github.com/repos/logans-cmyk/fitness-2026/contents/data.json', {
-      headers: { 'Accept': 'application/vnd.github.v3.raw', 'Cache-Control': 'no-cache' }
+    const res = await fetch('https://api.github.com/repos/logans-cmyk/fitness-2026/contents/data.json?t=' + Date.now(), {
+      headers: { 'Accept': 'application/vnd.github.v3.raw' }
     });
     const liveMonths = await res.json();
     NAMES.forEach(n => {
